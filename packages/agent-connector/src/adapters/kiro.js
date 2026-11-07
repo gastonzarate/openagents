@@ -700,7 +700,9 @@ class KiroAdapter extends BaseAdapter {
     await this.sendStatus(channel, 'thinking...');
 
     const settings = resolveKiroSettings(this.agentEnv, this.workspaceModel);
-    const browserEnabled = await this.getBrowserEnabled();
+    // The browser directive only for agents that have the browser tools: an
+    // agent with the module off would be told to use tools it does not have.
+    const browserEnabled = (await this.getBrowserEnabled()) && !this.disabledModules.has('browser');
     const briefing = buildClaudeSystemPrompt({
       agentName: this.agentName,
       workspaceId: this.workspaceId,
