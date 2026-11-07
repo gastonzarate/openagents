@@ -163,12 +163,37 @@ class KiroAdapter extends BaseAdapter {
    * working directory, and a session started under another agent profile
    * carries that profile's instructions — neither is resumed across a change.
    */
-  _resumableSession(channel, workingDir, agent) {
+  _resumableSession(channel, workingDir, agent, profile = null) {
     const entry = this._channelSessions[channel];
     if (!entry || !entry.sessionId) return null;
     if (entry.workingDir && workingDir && entry.workingDir !== workingDir) return null;
     if ((entry.agent || null) !== (agent || null)) return null;
+    // An edited profile (prompt, tools, MCP servers) is a different agent too:
+    // a resumed session would keep answering with the old instructions.
+    if (profile && entry.profile !== profile) return null;
     return entry;
+  }
+
+  /**
+   * Hash of the agent profile in the working directory and the prompt file it
+   * points to, so a change to either starts a fresh session. Null when the
+   * profile cannot be read (the CLI then reports the problem itself).
+   */
+  _profileHash(workingDir, agent) {
+    if (!workingDir || !agent) return null;
+    try {
+      const file = path.join(workingDir, '.kiro', 'agents', `${agent}.json`);
+      const raw = fs.readFileSync(file, 'utf-8');
+      const h = crypto.createHash('sha256').update(raw);
+      const prompt = (JSON.parse(raw).prompt || '').match(/^file:\/\/(.+)$/);
+      if (prompt) {
+        const target = path.isAbsolute(prompt[1]) ? prompt[1] : path.resolve(path.dirname(file), prompt[1]);
+        try { h.update(fs.readFileSync(target)); } catch {}
+      }
+      return h.digest('hex').slice(0, 16);
+    } catch {
+      return null;
+    }
   }
 
   _rememberSession(channel, record) {
@@ -696,8 +721,9 @@ class KiroAdapter extends BaseAdapter {
 
     // One retry: a remembered session the CLI no longer has is worth
     // re-running fresh rather than failing the message.
+    const profileHash = this._profileHash(workingDir, settings.agent);
     for (let attempt = 0; attempt < 2; attempt++) {
-      const resumable = attempt === 0 ? this._resumableSession(channel, workingDir, settings.agent) : null;
+      const resumable = attempt === 0 ? this._resumableSession(channel, workingDir, settings.agent, profileHash) : null;
       const resumeId = resumable ? resumable.sessionId : null;
 
       const blocks = [];
@@ -727,7 +753,7 @@ class KiroAdapter extends BaseAdapter {
       }
 
       const record = run.sessionId
-        ? { sessionId: run.sessionId, workingDir, agent: settings.agent, briefing: briefingHash }
+        ? { sessionId: run.sessionId, workingDir, agent: settings.agent, briefing: briefingHash, profile: profileHash }
         : null;
 
       if (run.userStopped) {
