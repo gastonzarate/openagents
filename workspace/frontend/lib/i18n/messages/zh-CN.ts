@@ -219,6 +219,7 @@ export const messages: Messages = {
     browser: '浏览器',
     tasks: '任务',
     workflows: '工作流',
+    agentMap: '智能体地图',
     routines: '定时任务',
     inbox: '收件箱',
     connect: '连接智能体',

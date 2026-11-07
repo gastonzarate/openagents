@@ -11,7 +11,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import {
   BookOpen, Bot, CircleDot, CalendarClock, ChevronDown, ChevronLeft, ChevronRight, FileText, Globe,
-  Inbox, KanbanSquare, MessageSquare, Settings, Sparkles, Users, Waypoints,
+  Inbox, KanbanSquare, MessageSquare, Settings, Sparkles, Users, Waypoints, Network,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -51,6 +51,7 @@ import { InviteMemberButton } from './invite-member-button';
 import { UserMenu } from './user-menu';
 import { SidebarMembers } from './sidebar-members';
 import { CampaignSidebarCard } from '@/components/campaign/campaign-sidebar-card';
+import { AGENT_MAP_URL } from '@/components/agent-map/agent-map-view';
 
 interface RailItem {
   mode: ViewMode;
@@ -263,6 +264,7 @@ export function NavRail() {
     { mode: 'workflows', label: t('views.workflows'), icon: <Waypoints /> },
     // v1.1 M2: team specialists directory
     { mode: 'agents', label: t('collab.viewAgents'), icon: <Bot /> },
+    ...(AGENT_MAP_URL ? [{ mode: 'map' as const, label: t('views.agentMap'), icon: <Network /> }] : []),
   ];
 
   const onboarding = useOnboardingSurface();

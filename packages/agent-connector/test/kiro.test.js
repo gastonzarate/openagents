@@ -366,6 +366,26 @@ describe('KiroAdapter — session continuity', () => {
     assert.equal(requests('session/new').length, 2);
   });
 
+  it('starts a fresh session when the agent profile file or its prompt was edited', async () => {
+    const agents = path.join(workDir, '.kiro', 'agents');
+    fs.mkdirSync(agents, { recursive: true });
+    fs.writeFileSync(path.join(workDir, 'prompt.md'), 'You are the researcher.');
+    fs.writeFileSync(path.join(agents, 'researcher.json'), JSON.stringify({ name: 'researcher', prompt: 'file://../../prompt.md' }));
+    try {
+      const a = makeAdapter({ agentEnv: { KIRO_AGENT: 'researcher' } });
+      await send(a, 'first');
+      await send(a, 'second');
+      assert.equal(requests('session/load').length, 1, 'an unchanged profile resumes');
+      fs.writeFileSync(path.join(workDir, 'prompt.md'), 'You are the researcher. Cite every source.');
+      await send(a, 'third');
+      assert.equal(requests('session/load').length, 1, 'an edited prompt does not resume');
+      assert.equal(requests('session/new').length, 2);
+    } finally {
+      fs.rmSync(path.join(workDir, '.kiro'), { recursive: true, force: true });
+      fs.rmSync(path.join(workDir, 'prompt.md'), { force: true });
+    }
+  });
+
   it('replaces a session the CLI no longer has, once, and still answers', async () => {
     fs.mkdirSync(path.dirname(sessionsFile()), { recursive: true });
     fs.writeFileSync(sessionsFile(), JSON.stringify({
