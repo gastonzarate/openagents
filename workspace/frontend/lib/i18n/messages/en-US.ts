@@ -226,6 +226,7 @@ export const messages = {
     browser: 'Browser',
     tasks: 'Tasks',
     workflows: 'Workflows',
+    agentMap: 'Agent map',
     routines: 'Routines',
     inbox: 'Inbox',
     connect: 'Connect Agent',

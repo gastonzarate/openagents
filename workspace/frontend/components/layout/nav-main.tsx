@@ -4,7 +4,7 @@ import { useOnboardingSurface, useDismissOnboarding } from './onboarding-surface
 import { isRoutineSession, isIssueWorkSession } from '@/lib/conversation-list';
 
 import {
-  BookOpen, Bot, CircleDot, CalendarClock, FileText, Globe, Inbox, MessageSquare, Sparkles, Waypoints,
+  BookOpen, Bot, CircleDot, CalendarClock, FileText, Globe, Inbox, MessageSquare, Sparkles, Waypoints, Network,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -22,6 +22,7 @@ import { countFiles } from '@/components/files/file-utils';
 import { unreadIssueCounts } from '@/lib/signals';
 import { useT } from '@/lib/i18n';
 import { useLayout, type ViewMode } from './layout-context';
+import { AGENT_MAP_URL } from '@/components/agent-map/agent-map-view';
 
 interface NavItem {
   mode: ViewMode;
@@ -89,6 +90,7 @@ export function NavMain({ onNavigate }: { onNavigate?: () => void }) {
           },
           // v1.1 M2: team specialists directory
           { mode: 'agents', label: t('collab.viewAgents'), icon: <Bot /> },
+          ...(AGENT_MAP_URL ? [{ mode: 'map', label: t('views.agentMap'), icon: <Network /> }] : []),
         ] as NavItem[])
       : []),
   ];

@@ -29,6 +29,7 @@ import { AgentProfilePanel } from '@/components/agents/agent-profile-panel';
 import { MonitorGrid } from '@/components/monitor/monitor-grid';
 import { IssuesView } from '@/components/issues/issues-view';
 import { WorkflowsView } from '@/components/workflows/workflows-view';
+import { AgentMapView } from '@/components/agent-map/agent-map-view';
 import { RoutineList } from '@/components/routines/routine-list';
 import { SkillsView } from '@/components/skills/skills-view';
 import { InboxView } from '@/components/inbox/inbox-view';
@@ -207,6 +208,10 @@ export function Wrapper() {
             <div className="h-full bg-background overflow-hidden">
               <WorkflowsView />
             </div>
+          ) : viewMode === 'map' ? (
+            <div className="h-full bg-background overflow-hidden">
+              <AgentMapView />
+            </div>
           ) : viewMode === 'inbox' ? (
             <div className="h-full bg-background overflow-hidden">
               <InboxView />
@@ -355,6 +360,7 @@ export function Wrapper() {
               {visitedViews.current.has('issues') && <Activity mode={viewMode === 'issues' ? 'visible' : 'hidden'}><IssuesView /></Activity>}
               {visitedViews.current.has('tasks') && <Activity mode={viewMode === 'tasks' ? 'visible' : 'hidden'}><IssuesView initialWork /></Activity>}
               {visitedViews.current.has('workflows') && <Activity mode={viewMode === 'workflows' ? 'visible' : 'hidden'}><WorkflowsView /></Activity>}
+              {visitedViews.current.has('map') && <Activity mode={viewMode === 'map' ? 'visible' : 'hidden'}><AgentMapView /></Activity>}
               {visitedViews.current.has('inbox') && <Activity mode={viewMode === 'inbox' ? 'visible' : 'hidden'}><InboxView /></Activity>}
               {visitedViews.current.has('skills') && <Activity mode={viewMode === 'skills' ? 'visible' : 'hidden'}><SkillsView /></Activity>}
               {visitedViews.current.has('agents') && <Activity mode={viewMode === 'agents' ? 'visible' : 'hidden'}><AgentDirectoryView /></Activity>}
